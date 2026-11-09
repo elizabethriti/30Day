@@ -1,0 +1,441 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Reset 30</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a cobalt-on-linen habit board. Header with day count, four stat tiles, a Mon–Sun 30-day grid, then the selected day's checklist. */
+:root {
+  --bg: #F3F5F1; --surface: #FFFFFF; --ink: #17201B; --muted: #66716A; --line: #DCE2DA;
+  --accent: #2F52D4; --accent-soft: #E3E9FF; --good: #23855A; --good-soft: #DDF1E6; --warn: #B8641F; --warn-soft: #FBEADB;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111512; --surface: #1A201C; --ink: #E7EDE8; --muted: #97A29A; --line: #2B342E;
+  --accent: #8CA3FF; --accent-soft: #232C4D; --good: #5CCB93; --good-soft: #17332A; --warn: #F0A462; --warn-soft: #3A2818; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111512; --surface: #1A201C; --ink: #E7EDE8; --muted: #97A29A; --line: #2B342E;
+  --accent: #8CA3FF; --accent-soft: #232C4D; --good: #5CCB93; --good-soft: #17332A; --warn: #F0A462; --warn-soft: #3A2818; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+header h1 { font-size: clamp(40px, 8vw, 68px); font-weight: 800; line-height: .95; letter-spacing: -.02em; }
+header h1 span { color: var(--accent); }
+.dates { color: var(--muted); }
+.status { font-size: 13px; color: var(--muted); }
+.banner { padding: 12px 16px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+.banner.ok { background: var(--good-soft); color: var(--good); }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
+.stat .big { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1; }
+.stat .big small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.stat .sub { font-size: 13px; color: var(--muted); }
+.bar { position: relative; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 99px; }
+.ticks { position: relative; height: 0; }
+.ticks b { position: absolute; top: -8px; width: 2px; height: 8px; background: var(--surface); }
+
+.grid-head, .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.grid-head div { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: center; font-weight: 600; }
+.cell { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 8px 6px 10px; text-align: left; cursor: pointer; display: grid; gap: 4px; min-width: 0; font: inherit; position: relative; }
+.cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cell .d { font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1; }
+.cell .dt { font-size: 11px; color: var(--muted); }
+.cell .meter { height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.cell .meter i { display: block; height: 100%; background: var(--accent); }
+.cell .run { position: absolute; top: 7px; right: 7px; font-family: var(--mono); font-size: 10px; color: var(--accent); }
+.cell.done { background: var(--good-soft); border-color: transparent; }
+.cell.done .meter i { background: var(--good); }
+.cell.miss { border-color: var(--warn); }
+.cell.miss .d { color: var(--warn); }
+.cell.today { box-shadow: inset 0 0 0 2px var(--accent); }
+.cell.sel { background: var(--accent); color: #fff; border-color: transparent; }
+.cell.sel .dt, .cell.sel .run { color: #fff; opacity: .85; }
+.cell.sel .meter { background: rgba(255,255,255,.3); }
+.cell.sel .meter i { background: #fff; }
+.cell.future { opacity: .55; }
+.cell.sel.future { opacity: 1; }
+.blank { visibility: hidden; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend .l1::before { background: var(--good-soft); border: 1px solid var(--good); }
+.legend .l2::before { border: 1px solid var(--warn); }
+.legend .l3::before { box-shadow: inset 0 0 0 2px var(--accent); }
+
+.day { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .day { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.panel h2 { font-size: 24px; font-weight: 700; }
+.panel h3 { font-size: 15px; font-weight: 700; font-family: var(--body); }
+.nav { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn:disabled { opacity: .4; cursor: default; }
+
+.checks { display: grid; gap: 2px; }
+.check { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.check:last-child { border-bottom: 0; }
+.check input { appearance: none; width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 6px; flex: none; display: grid; place-items: center; cursor: pointer; margin: 0; background: var(--surface); }
+.check input:checked { background: var(--accent); border-color: var(--accent); }
+.check input:checked::after { content: ""; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
+.check input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check .t { flex: 1; min-width: 0; }
+.check .h { font-size: 12px; color: var(--muted); display: block; }
+.check.on .t > span:first-child { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+
+.field { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.field:last-child { border-bottom: 0; }
+.field label { flex: 1; min-width: 0; }
+.field input[type=number] { width: 96px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: 14px; text-align: right; }
+.field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.stepper { display: flex; align-items: center; gap: 8px; }
+.stepper .btn { width: 34px; padding: 6px 0; }
+
+.week { display: grid; gap: 8px; }
+.wrow { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.wrow:last-child { border-bottom: 0; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: var(--line); color: var(--muted); white-space: nowrap; }
+.pill.ok { background: var(--good-soft); color: var(--good); }
+.pill.no { background: var(--warn-soft); color: var(--warn); }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; }
+.rules ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.rules li { margin: 2px 0; }
+.rules h3 { font-family: var(--display); font-size: 17px; }
+.mark { font-family: var(--display); font-weight: 800; font-size: 22px; }
+@media (prefers-reduced-motion: no-preference) { .bar i, .cell .meter i { transition: width .3s ease; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Get-it-together challenge · Nov 9 – Dec 8</div>
+      <h1 id="headline">Day <span>1</span> of 30</h1>
+    </div>
+    <div style="text-align:right">
+      <div class="dates" id="subline">Starts Monday, Nov 9</div>
+      <div class="status" id="status">Connecting…</div>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <section class="stats" aria-label="Progress">
+    <div class="stat">
+      <div class="eyebrow">Miles run</div>
+      <div class="big num" id="sMiles">0<small> / 40</small></div>
+      <div class="bar"><i id="sMilesBar" style="width:0%"></i></div>
+      <div class="ticks"><b style="left:25%"></b><b style="left:50%"></b><b style="left:75%"></b></div>
+      <div class="sub" id="sMilesSub">On pace: 0 by today</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">Workouts this week</div>
+      <div class="big num" id="sWork">0<small> / 4</small></div>
+      <div class="sub" id="sWorkSub">0 total</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">Streak</div>
+      <div class="big num" id="sStreak">0<small> days</small></div>
+      <div class="sub" id="sStreakSub">0 full days so far</div>
+    </div>
+    <div class="stat">
+      <div class="eyebrow">Paid to debt</div>
+      <div class="big num" id="sDebt">$0</div>
+      <div class="sub" id="sDebtSub">Groceries: $0 spent</div>
+    </div>
+  </section>
+
+  <section aria-label="30-day calendar">
+    <div class="grid-head"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+    <div class="grid" id="grid" style="margin-top:6px"></div>
+    <div class="legend"><span class="l1">All daily habits done</span><span class="l2">Missed day</span><span class="l3">Today</span><span>Number in corner = miles</span></div>
+  </section>
+
+  <section class="day">
+    <div class="panel">
+      <div class="nav">
+        <div>
+          <div class="eyebrow" id="dEyebrow">Day 1</div>
+          <h2 id="dTitle">Monday, Nov 9</h2>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="prev" aria-label="Previous day">←</button>
+          <button class="btn" id="toToday">Today</button>
+          <button class="btn" id="next" aria-label="Next day">→</button>
+        </div>
+      </div>
+      <div>
+        <h3>Every day</h3>
+        <div class="checks" id="dailyChecks"></div>
+      </div>
+      <div>
+        <h3>Movement</h3>
+        <div class="checks" id="workChecks"></div>
+        <div class="field"><label for="f-miles">Miles run today</label><input id="f-miles" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:20px">
+      <div class="panel">
+        <h3>Home, food &amp; money</h3>
+        <div>
+          <div class="checks" id="extraChecks"></div>
+          <div class="field">
+            <label>Meals out today<span class="h" style="display:block;font-size:12px;color:var(--muted)">Max 2 a week</span></label>
+            <div class="stepper"><button class="btn" id="mealsMinus" aria-label="One fewer meal out">−</button><span class="num" id="mealsVal">0</span><button class="btn" id="mealsPlus" aria-label="One more meal out">+</button></div>
+          </div>
+          <div class="field" id="groceryRow"><label for="f-grocery">Grocery order total ($)<span style="display:block;font-size:12px;color:var(--muted)">Tuesday budget: $100</span></label><input id="f-grocery" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+          <div class="field"><label for="f-debt">Paid toward debt today ($)</label><input id="f-debt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="nav"><h3 id="wTitle">Week 1</h3><span class="pill" id="wRange">Nov 9 – 15</span></div>
+        <div class="week" id="weekBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="nav"><h2>The rules</h2><span class="pill">Never miss twice in a row</span></div>
+    <div class="rules">
+      <div><h3>Body</h3><ul><li>10k steps a day</li><li>64 oz of water</li><li>4 workouts a week (a 1-mile run counts)</li><li>About 10 miles a week, 40 total</li><li>Alcohol only socially or for special occasions</li></ul></div>
+      <div><h3>Food &amp; money</h3><ul><li>Grocery order every Tuesday, $100 max</li><li>2 meals out a week max, ideally just date night</li><li>No frivolous spending except gifts</li><li>Extra money goes to debt</li></ul></div>
+      <div><h3>Home</h3><ul><li>Daily apartment reset</li><li>One deeper clean a week</li><li>Declutter one thing a week</li></ul></div>
+      <div><h3>Mind</h3><ul><li>20 minutes of reading</li><li>No social media 10am–4pm</li><li>Sunday planning session</li></ul></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const START = new Date(2026, 10, 9);
+  const DAYS = Array.from({ length: 30 }, (_, i) => new Date(2026, 10, 9 + i));
+  const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const WDL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const DAILY = [
+    ["steps", "10,000 steps"],
+    ["water", "64 oz of water"],
+    ["read", "20 minutes of reading"],
+    ["reset", "Apartment reset"],
+    ["social", "No social media 10am–4pm"],
+    ["spend", "No frivolous spending", "Gifts are fine"],
+    ["alcohol", "Alcohol rule kept", "Only social or special occasions"],
+  ];
+  const WORK = [["workout", "Workout done", "A 1-mile run counts"]];
+  const EXTRA = [
+    ["deepClean", "Deeper clean", "Once a week"],
+    ["declutter", "Decluttered one thing", "Once a week"],
+    ["planning", "Sunday planning session", "Plan meals, workouts and the week", 0],
+  ];
+
+  const pad = n => String(n).padStart(2, "0");
+  const key = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fmt = d => `${MO[d.getMonth()]} ${d.getDate()}`;
+  const money = n => "$" + (Math.round(n * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  const $ = id => document.getElementById(id);
+
+  function todayIndex() {
+    const now = new Date();
+    const t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((t - START) / 86400000);
+  }
+
+  let state = {};          // key -> body
+  let sel = Math.min(29, Math.max(0, todayIndex()));
+  let db = null, local = false;
+
+  const body = k => state[k] || {};
+  const dailyScore = k => DAILY.filter(([f]) => body(k)[f]).length;
+  const isDone = k => dailyScore(k) === DAILY.length;
+  const weekOf = i => Math.floor(i / 7);
+
+  // ---------- saving ----------
+  const inflight = {}, dirty = {};
+  async function save(k) {
+    if (local) { try { localStorage.setItem("reset30", JSON.stringify(state)); } catch (e) {} return; }
+    if (!db) return;
+    if (inflight[k]) { dirty[k] = true; return; }
+    inflight[k] = true;
+    try { await db.collection("days").doc(k).set({ ...body(k), date: k }); setStatus("Saved"); }
+    catch (e) {
+      if (e && e.code === "unavailable") { await new Promise(r => setTimeout(r, 600 + Math.random() * 600)); dirty[k] = true; }
+      else setStatus("Couldn't save. Check your connection and try again.");
+    }
+    inflight[k] = false;
+    if (dirty[k]) { dirty[k] = false; save(k); }
+  }
+  function setField(f, v) {
+    const k = key(DAYS[sel]);
+    state[k] = { ...body(k), [f]: v };
+    render(); save(k);
+  }
+  function setStatus(t) { $("status").textContent = t; }
+
+  // ---------- render ----------
+  function checkRow(f, label, hint) {
+    const k = key(DAYS[sel]);
+    const on = !!body(k)[f];
+    const lab = document.createElement("label");
+    lab.className = "check" + (on ? " on" : "");
+    const input = document.createElement("input");
+    input.type = "checkbox"; input.id = "c-" + f; input.checked = on;
+    input.addEventListener("change", () => setField(f, input.checked));
+    const t = document.createElement("span"); t.className = "t";
+    const s = document.createElement("span"); s.textContent = label; t.appendChild(s);
+    if (hint) { const h = document.createElement("span"); h.className = "h"; h.textContent = hint; t.appendChild(h); }
+    lab.append(input, t);
+    return lab;
+  }
+
+  function render() {
+    const ti = todayIndex();
+    const k = key(DAYS[sel]);
+
+    // header
+    if (ti < 0) { $("headline").innerHTML = 'Starts <span>tomorrow</span>'; $("subline").textContent = "Day 1 is Monday, Nov 9"; }
+    else if (ti > 29) { $("headline").innerHTML = 'Day <span>30</span> done'; $("subline").textContent = "Finished Tuesday, Dec 8"; }
+    else { $("headline").innerHTML = `Day <span>${ti + 1}</span> of 30`; $("subline").textContent = `${30 - ti - 1} days left · ends Tue, Dec 8`; }
+
+    // misses
+    const missed = i => i < ti && i >= 0 && !isDone(key(DAYS[i]));
+    let twice = -1;
+    for (let i = 1; i < Math.min(ti, 30); i++) if (missed(i) && missed(i - 1)) twice = i;
+    const banner = $("banner");
+    if (ti >= 1 && ti <= 29 && missed(ti - 1) && !(ti >= 2 && missed(ti - 2))) {
+      banner.hidden = false; banner.className = "banner"; banner.textContent = "Yesterday was a miss. Finish today's habits to keep the never-miss-twice rule.";
+    } else if (twice >= 0) {
+      banner.hidden = false; banner.className = "banner"; banner.textContent = `Two misses in a row ended on ${fmt(DAYS[twice])}. Reset and keep going.`;
+    } else if (ti >= 0 && ti <= 29 && isDone(key(DAYS[ti]))) {
+      banner.hidden = false; banner.className = "banner ok"; banner.textContent = "Today's daily habits are done.";
+    } else banner.hidden = true;
+
+    // stats
+    let miles = 0, workouts = 0, debt = 0, groc = 0, full = 0;
+    DAYS.forEach(d => { const b = body(key(d)); miles += +b.miles || 0; workouts += b.workout ? 1 : 0; debt += +b.debt || 0; groc += +b.grocery || 0; if (isDone(key(d))) full++; });
+    $("sMiles").innerHTML = `${Math.round(miles * 10) / 10}<small> / 40</small>`;
+    $("sMilesBar").style.width = Math.min(100, miles / 40 * 100) + "%";
+    const pace = ti < 0 ? 0 : Math.min(40, Math.round(40 * Math.min(30, ti + 1) / 30 * 10) / 10);
+    $("sMilesSub").textContent = miles >= 40 ? "Goal reached" : `On pace would be ${pace} by today`;
+    const cw = weekOf(Math.min(29, Math.max(0, ti)));
+    const wk = DAYS.slice(cw * 7, cw * 7 + 7).filter(d => body(key(d)).workout).length;
+    const wkGoal = cw === 4 ? 1 : 4;
+    $("sWork").innerHTML = `${wk}<small> / ${wkGoal}</small>`;
+    $("sWorkSub").textContent = `${workouts} total so far`;
+    let streak = 0;
+    let s = Math.min(29, ti);
+    if (s >= 0 && !isDone(key(DAYS[s]))) s--;
+    while (s >= 0 && isDone(key(DAYS[s]))) { streak++; s--; }
+    $("sStreak").innerHTML = `${streak}<small> ${streak === 1 ? "day" : "days"}</small>`;
+    $("sStreakSub").textContent = `${full} full ${full === 1 ? "day" : "days"} so far`;
+    $("sDebt").textContent = money(debt);
+    $("sDebtSub").textContent = `Groceries: ${money(groc)} spent`;
+
+    // grid
+    const grid = $("grid"); grid.textContent = "";
+    DAYS.forEach((d, i) => {
+      const dk = key(d), b = body(dk);
+      const c = document.createElement("button");
+      c.type = "button"; c.id = "day-" + i;
+      c.className = "cell" + (isDone(dk) ? " done" : "") + (missed(i) ? " miss" : "") + (i === ti ? " today" : "") + (i === sel ? " sel" : "") + (i > ti ? " future" : "");
+      c.setAttribute("aria-label", `Day ${i + 1}, ${WDL[d.getDay()]} ${fmt(d)}, ${dailyScore(dk)} of ${DAILY.length} habits`);
+      c.innerHTML = `<span class="d">${i + 1}</span><span class="dt">${fmt(d)}</span><span class="meter"><i style="width:${dailyScore(dk) / DAILY.length * 100}%"></i></span>` + (+b.miles ? `<span class="run">${Math.round(b.miles * 10) / 10}</span>` : "");
+      c.addEventListener("click", () => { sel = i; render(); });
+      grid.appendChild(c);
+    });
+
+    // day panel
+    const d = DAYS[sel], b = body(k);
+    $("dEyebrow").textContent = `Day ${sel + 1} of 30` + (sel === ti ? " · Today" : "");
+    $("dTitle").textContent = `${WDL[d.getDay()]}, ${fmt(d)}`;
+    $("prev").disabled = sel === 0; $("next").disabled = sel === 29;
+    $("toToday").disabled = ti < 0 || ti > 29 || sel === ti;
+    const dc = $("dailyChecks"); dc.textContent = ""; DAILY.forEach(r => dc.appendChild(checkRow(...r)));
+    const wc = $("workChecks"); wc.textContent = ""; WORK.forEach(r => wc.appendChild(checkRow(...r)));
+    const ec = $("extraChecks"); ec.textContent = "";
+    EXTRA.forEach(([f, l, h, onlyDay]) => { if (onlyDay === undefined || d.getDay() === onlyDay || b[f]) ec.appendChild(checkRow(f, l, h)); });
+    const setNum = (id, v) => { const el = $(id); if (document.activeElement !== el) el.value = v ? v : ""; };
+    setNum("f-miles", b.miles); setNum("f-grocery", b.grocery); setNum("f-debt", b.debt);
+    $("groceryRow").hidden = !(d.getDay() === 2 || +b.grocery);
+    $("mealsVal").textContent = +b.mealsOut || 0;
+    $("mealsMinus").disabled = !(+b.mealsOut);
+
+    // week box
+    const w = weekOf(sel), wd = DAYS.slice(w * 7, w * 7 + 7);
+    $("wTitle").textContent = `Week ${w + 1}`;
+    $("wRange").textContent = `${fmt(wd[0])} – ${fmt(wd[wd.length - 1])}`;
+    const sum = f => wd.reduce((a, x) => a + (+body(key(x))[f] || 0), 0);
+    const any = f => wd.some(x => body(key(x))[f]);
+    const milesTarget = w === 4 ? Math.max(0, 40 - DAYS.slice(0, 28).reduce((a, x) => a + (+body(key(x)).miles || 0), 0)) : 10;
+    const wMiles = Math.round(sum("miles") * 10) / 10, wWork = wd.filter(x => body(key(x)).workout).length, wMeals = sum("mealsOut");
+    const tue = wd.find(x => x.getDay() === 2), wGroc = tue ? +body(key(tue)).grocery || 0 : null;
+    const rows = [
+      ["Workouts", `${wWork} / ${w === 4 ? 1 : 4}`, wWork >= (w === 4 ? 1 : 4)],
+      ["Miles", `${wMiles} / ${Math.round(milesTarget * 10) / 10}`, wMiles >= milesTarget],
+      ["Meals out", `${wMeals} of 2 max`, wMeals <= 2 ? (wMeals === 0 ? true : null) : false],
+      ["Deeper clean", any("deepClean") ? "Done" : "Not yet", any("deepClean")],
+      ["Declutter", any("declutter") ? "Done" : "Not yet", any("declutter")],
+    ];
+    if (wGroc !== null) rows.push(["Tuesday groceries", wGroc ? `${money(wGroc)} of $100` : "Not logged", wGroc ? wGroc <= 100 : null]);
+    const sun = wd.find(x => x.getDay() === 0);
+    if (sun) rows.push(["Sunday planning", body(key(sun)).planning ? "Done" : "Not yet", !!body(key(sun)).planning]);
+    const wb = $("weekBox"); wb.textContent = "";
+    rows.forEach(([l, v, ok]) => {
+      const r = document.createElement("div"); r.className = "wrow";
+      const a = document.createElement("span"); a.textContent = l;
+      const p = document.createElement("span"); p.className = "pill" + (ok === true ? " ok" : ok === false && (l === "Meals out" || l === "Tuesday groceries") ? " no" : "");
+      p.textContent = v; r.append(a, p); wb.appendChild(r);
+    });
+  }
+
+  // ---------- controls ----------
+  $("prev").onclick = () => { if (sel > 0) { sel--; render(); } };
+  $("next").onclick = () => { if (sel < 29) { sel++; render(); } };
+  $("toToday").onclick = () => { sel = Math.min(29, Math.max(0, todayIndex())); render(); };
+  $("mealsPlus").onclick = () => setField("mealsOut", (+body(key(DAYS[sel])).mealsOut || 0) + 1);
+  $("mealsMinus").onclick = () => setField("mealsOut", Math.max(0, (+body(key(DAYS[sel])).mealsOut || 0) - 1));
+  [["f-miles", "miles"], ["f-grocery", "grocery"], ["f-debt", "debt"]].forEach(([id, f]) => {
+    $(id).addEventListener("change", e => { const v = parseFloat(e.target.value); setField(f, isFinite(v) && v > 0 ? v : 0); });
+  });
+  document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowLeft" && sel > 0) { sel--; render(); }
+    if (e.key === "ArrowRight" && sel < 29) { sel++; render(); }
+  });
+
+  render();
+
+  // ---------- data ----------
+  function useLocal(msg) {
+    local = true;
+    try { state = JSON.parse(localStorage.getItem("reset30") || "{}") || {}; } catch (e) { state = {}; }
+    setStatus(msg); render();
+  }
+  (async () => {
+    try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { db = null; }
+    if (!db) { useLocal("Saving on this device only"); return; }
+    const timer = setTimeout(() => setStatus("Can't reach your saved progress yet"), 10000);
+    db.collection("days").onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(doc => { if (doc.exists) next[doc.id] = doc.data(); });
+      // keep local edits that are still saving
+      Object.keys(inflight).forEach(k => { if (inflight[k] && state[k]) next[k] = state[k]; });
+      state = next;
+      if (!snap.metadata.fromCache) { clearTimeout(timer); setStatus("Progress synced"); }
+      render();
+    }, () => { clearTimeout(timer); useLocal("Sync is off, saving on this device only"); });
+  })();
+})();
+</script>
+
+</body></html>
